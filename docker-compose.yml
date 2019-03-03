@@ -1,0 +1,39 @@
+version: "3"
+
+services:
+  server:
+    image: gocd/gocd-server:v19.1.0
+    privileged: true
+    ports:
+      - "8153:8153"
+      - "8154:8154"
+
+    volumes:
+      - data-volume:/godata
+      - home-volume:/home/go
+      - script-server-volume:/docker-entrypoint.d
+      - script-shared-volume:/shared
+
+
+#    environment:
+#      -
+
+  agent:
+    image: gocd/gocd-agent-alpine-3.8:v19.1.0
+    privileged: true
+    environment:
+      - GO_SERVER_URL=https://server:8154/go
+      - AGENT_AUTO_REGISTER_KEY=agent-autoregister-key
+
+    volumes:
+      - script-agent-volume:/docker-entrypoint.d
+      - script-shared-volume:/shared
+
+    depends_on:
+      - "server"
+volumes:
+  data-volume:
+  home-volume:
+  script-server-volume:
+  script-agent-volume:
+  script-shared-volume:
